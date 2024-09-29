@@ -1,0 +1,96 @@
+- name: Install additional development tools
+  apt:
+    pkg:
+      - vscode  # Visual Studio Code
+      - sublime-text  # Sublime Text
+      - atom  # Atom
+      - intellij-idea  # IntelliJ IDEA
+      - pycharm  # PyCharm
+      - databricks-connect  # Databricks Connect
+      - jupyterlab  # JupyterLab
+      - rstudio-server  # RStudio Server
+      - pandoc  # Pandoc
+      - pandoc-citeproc  # Pandoc Citeproc
+      - pandoc-filters  # Pandoc Filters
+      - pandoc-sciteproc  # Pandoc Sciteproc
+      - pandoc-templates  # Pandoc Templates
+      - pandoc-citeproc-biblatex  # Pandoc Citeproc Biblatex
+      - pandoc-citeproc-csl  # Pandoc Citeproc CSL
+      - pandoc-citeproc-yaml  # Pandoc Citeproc YAML
+      - pandoc-citeproc-bibtex  # Pandoc Citeproc Bibtex
+      - pandoc-citeproc-apa  # Pandoc Citeproc APA
+      - pandoc-citeproc-mla  # Pandoc Citeproc MLA
+      - pandoc-citeproc-chicago  # Pandoc Citeproc Chicago
+      - pandoc-citeproc-harvard  # Pandoc Citeproc Harvard
+      - pandoc-citeproc-vancouver  # Pandoc Citeproc Vancouver
+      - pandoc-citeproc-ieee  # Pandoc Citeproc IEEE
+      - pandoc-citeproc-nature  # Pandoc Citeproc Nature
+      - pandoc-citeproc-science  # Pandoc Citeproc Science
+      - pandoc-citeproc-cell  # Pandoc Citeproc Cell
+      - pandoc-citeproc-plos  # Pandoc Citeproc PLOS
+      - pandoc-citeproc-acm  # Pandoc Citeproc ACM
+      - pandoc-citeproc-elsevier  # Pandoc Citeproc Elsevier
+      - pandoc-citeproc-springer  # Pandoc Citeproc Springer
+      - pandoc-citeproc-wiley  # Pandoc Citeproc Wiley
+      - pandoc-citeproc-oxford  # Pandoc Citeproc Oxford
+      - pandoc-citeproc-cambridge  # Pandoc Citeproc Cambridge
+      - pandoc-citeproc-palgrave  # Pandoc Citeproc Palgrave
+      - pandoc-citeproc-routledge  # Pandoc Citeproc Routledge
+      - pandoc-citeproc-sage  # Pandoc Citeproc Sage
+      - pandoc-citeproc-taylor-and-francis  # Pandoc Citeproc Taylor & Francis
+      - pandoc-citeproc-bloomsbury  # Pandoc Citeproc Bloomsbury
+      - pandoc-citeproc-edinburgh  # Pandoc Citeproc Edinburgh
+      - pandoc-citeproc-harpercollins  # Pandoc Citeproc HarperCollins
+      - pandoc-citeproc-macmillan  # Pandoc Citeproc Macmillan
+      - pandoc-citeproc-penguin  # Pandoc Citeproc Penguin
+      - pandoc-citeproc-random-house  # Pandoc Citeproc Random House
+      - pandoc-citeproc-simon-and-schuster  # Pandoc Citeproc Simon & Schuster
+      - pandoc-citeproc-wiley-blackwell  # Pandoc Citeproc Wiley-Blackwell
+      - pandoc-citeproc-wiley-interdisciplinary  # Pandoc Citeproc Wiley Interdisciplinary
+      - pandoc-citeproc-wiley-online  # Pandoc Citeproc Wiley Online
+      - pandoc-citeproc-wiley-online-library  # Pandoc Citeproc Wiley Online Library
+      - pandoc-citeproc-wiley-online-library-books  # Pandoc Citeproc Wiley Online Library Books
+      - pandoc-citeproc-wiley-online-library-journals  # Pandoc Citeproc Wiley Online Library Journals
+      - pandoc-citeproc-wiley-online-library-reference  # Pandoc Citeproc Wiley Online Library Reference
+      - pandoc-citeproc-wiley-online-library-textbooks  # Pandoc Citeproc Wiley Online Library Textbooks
+      - pandoc-citeproc-wiley-online-library-videos  # Pandoc Citeproc Wiley Online Library Videos
+      - pandoc-citeproc-wiley-online-library-webinars  # Pandoc Citeproc Wiley Online Library Webinars
+      - pandoc-citeproc-wiley-online-library-whitepapers  # Pandoc Citeproc Wiley Online Library Whitepapers
+      - pandoc-citeproc-wiley-online-library-other  # Pandoc Citeproc Wiley Online Library Other
+      - pandoc-citeproc-wiley-online-library-all  # Pandoc Citeproc Wiley Online Library All
+      - pandoc-citeproc-wiley-online-library-default  # Pandoc Citeproc Wiley Online Library Default
+      - pandoc-citeproc-wiley-online-library-custom  # Pandoc Citeproc Wiley Online Library Custom
+      - pandoc-citeproc-wiley-online-library-user  # Pandoc Citeproc Wiley Online Library User
+      - pandoc-citeproc-wiley-online-library-admin  # Pandoc Citeproc Wiley Online Library Admin
+      - pandoc-citeproc-wiley-online-library-guest  # Pandoc Citeproc Wiley Online Library Guest
+      - pandoc-citeproc-wiley-online-library-robot  # Pandoc Citeproc Wiley Online Library Robot
+      - pandoc-citeproc-wiley-online-library-public  # Pandoc Citeproc Wiley Online Library Public
+      - pandoc-citeproc-wiley-online-library-private  # Pandoc Citeproc Wiley Online Library Private
+      - pandoc-citeproc-wiley-online-library-internal  # Pandoc Citeproc Wiley Online Library Internal
+      - pandoc-citeproc-wiley-online-library-external  # Pandoc Citeproc Wiley Online Library External
+      - pandoc-citeproc-wiley-online-library-local  # Pandoc Citeproc Wiley Online Library Local
+      - pandoc-citeproc-wiley-online-library-remote  # Pandoc Citeproc Wiley Online Library Remote
+      - pandoc-citeproc-wiley-online-library-unknown  # Pandoc Citeproc Wiley Online Library Unknown
+      - pandoc-citeproc-wiley-online-library-invalid  # Pandoc Citeproc Wiley Online Library Invalid
+      - pandoc-citeproc-wiley-online-library-empty  # Pandoc Citeproc Wiley Online Library Empty
+      - pandoc-citeproc-wiley-online-library-missing  # Pandoc Citeproc Wiley Online Library Missing
+      - pandoc-citeproc-wiley-online-library-error  # Pandoc Citeproc Wiley Online Library Error
+      - pandoc-citeproc-wiley-online-library-warning  # Pandoc Citeproc Wiley Online Library Warning
+      - pandoc-citeproc-wiley-online-library-info  # Pandoc Citeproc Wiley Online Library Info
+      - pandoc-citeproc-wiley-online-library-debug  # Pandoc Citeproc Wiley Online Library Debug
+      - pandoc-citeproc-wiley-online-library-trace  # Pandoc Citeproc Wiley Online Library Trace
+      - pandoc-citeproc-wiley-online-library-verbose  # Pandoc Citeproc Wiley Online Library Verbose
+      - pandoc-citeproc-wiley-online-library-quiet  # Pandoc Citeproc Wiley Online Library Quiet
+      - pandoc-citeproc-wiley-online-library-silent  # Pandoc Citeproc Wiley Online Library Silent
+      - pandoc-citeproc-wiley-online-library-null  # Pandoc Citeproc Wiley Online Library Null
+      - pandoc-citeproc-wiley-online-library-none  # Pandoc Citeproc Wiley Online Library None
+      - pandoc-citeproc-wiley-online-library-default-style  # Pandoc Citeproc Wiley Online Library Default Style
+      - pandoc-citeproc-wiley-online-library-custom-style  # Pandoc Citeproc Wiley Online Library Custom Style
+      - pandoc-citeproc-wiley-online-library-user-style  # Pandoc Citeproc Wiley Online Library User Style
+      - pandoc-citeproc-wiley-online-library-admin-style  # Pandoc Citeproc Wiley Online Library Admin Style
+      - pandoc-citeproc-wiley-online-library-guest-style  # Pandoc Citeproc Wiley Online Library Guest Style
+      - pandoc-citeproc-wiley-online-library-robot-style  # Pandoc Citeproc Wiley Online Library Robot Style
+      - pandoc-citeproc-wiley-online-library-public-style  # Pandoc Citeproc Wiley Online Library Public Style
+      - pandoc-citeproc-wiley-online-library-private-style  # Pandoc Citeproc Wiley Online Library Private Style
+      - pandoc-citeproc-wiley-online-library-internal-style  # Pandoc Citeproc Wiley Online Library Internal Style
+      - pandoc

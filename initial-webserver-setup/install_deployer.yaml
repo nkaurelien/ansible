@@ -1,0 +1,15 @@
+- name: Prepare deployer
+  hosts: web_deployer
+  gather_facts: no
+  remote_user: root
+
+
+  vars:
+    ansible_install_method: pip
+    ansible_install_version_pip: "2.7.0"
+
+  roles:
+    - role: geerlingguy.pip
+    - role: geerlingguy.git
+    - role: geerlingguy.ansible
+

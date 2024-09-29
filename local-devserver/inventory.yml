@@ -1,0 +1,18 @@
+local:
+  localhost:
+    ansible_connection: local
+#    ansible_user: nkaurelien
+#    ansible_ssh_pass: nkaurelien
+#    ansible_sudo_password: nkaurelien
+#    ansible_become_user: nkaurelien
+webservers:
+  hosts:
+    new_asone4h_(prod|dev|test)_server:
+      ansible_user: nkaurelien
+      ansible_host:  
+#      ansible_ssh_private_key_file: ~/.ssh/id_rsa
+
+  vars:
+    app_namespace: asone4health
+    ansible_python_interpreter: /usr/bin/python3
+

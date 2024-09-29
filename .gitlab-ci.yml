@@ -1,0 +1,38 @@
+variables:
+  SERVER_IP_ADDRESS: "127.0.0.1"
+  SERVER_USER: "nkaurelien"
+  SERVER_PASS: "${GITLAB_VM_SERVER_PASS:-nkaurelien}"
+  SSHPASS: "${SERVER_PASS}"
+  DEPLOY_DIR: "/home/${SERVER_USER}"
+  EXEC_DIR: "/home/${SERVER_USER}/$CI_PROJECT_NAME"
+
+before_script:
+  - ls -las
+  - chmod 400 $GITLAB_SSH_PRIVATE_KEY_FILE
+  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+  #  - eval `ssh-agent -s`
+  - eval $(ssh-agent -s)
+  - ssh-add $GITLAB_SSH_PRIVATE_KEY_FILE
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+
+.ansible_base:
+  image: willhallonline/ansible:2.9-ubuntu-22.04
+  stage: deploy
+  variables:
+    ANSIBLE_HOST_KEY_CHECKING: "False"
+    ANSIBLE_EXTRA_VARS: "ansible_ssh_pass=$SERVER_PASS ansible_become_pass=$SERVER_PASS ansible_sudo_pass=$SERVER_PASS"
+  script:
+    - ansible --version
+    - cd local-devserver
+    - ansible-galaxy role install -r requirements.yml
+    # - ansible-playbook -i inventory.yml --extra-vars "$ANSIBLE_EXTRA_VARS" --limit=webservers --skip-tags certbot
+    - ansible-playbook -i inventory.yml --extra-vars "$ANSIBLE_EXTRA_VARS" --limit=webservers --tags nvm,security
+
+
+
+install_server:
+  extends: .ansible_base
+  when: manual
+  environment: develop

@@ -1,0 +1,103 @@
+- name: Install Ubuntu Local Dev Server
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  become: yes
+  become_user: "nkaurelien"
+  vars:
+    ansible_become_pass: "nkaurelien"
+
+  tasks:
+#    - name: Update package lists
+#      apt: update
+#      tags: always
+
+    - name: Install essential tools
+      apt:
+        pkg:
+          - git
+          - curl
+          - wget
+          - vim
+          - tmux
+          - htop
+          - ncdu
+          - tree
+      tags: dev-tools
+
+
+    - name: Install nvm
+      get_url:
+        url: https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh
+        dest: /tmp/install.sh
+      become: yes
+      register: nvm_script
+      tags: nodejs, nvm
+
+    - name: Run nvm installation script
+      shell: chmod +x /tmp/install.sh && /tmp/install.sh
+      become: yes
+      when: nvm_script.state == "file"
+      tags: nodejs, nvm
+
+    - name: Install node and set version
+#      become: yes
+      shell: "source ~/.bashrc && nvm install {{ nodejs_version }}"
+#      sudo: no
+      vars:
+        nodejs_version: 18
+      args:
+        executable: /bin/bash
+      tags: nodejs, nvm
+
+    - name: Install programming languages and tools (excluding Node.js)
+      apt:
+        pkg:
+          - python3
+          - python3-pip
+          - python3-venv
+      tags: dev-tools
+
+    - name: Install database management systems
+      apt:
+        pkg:
+          - mysql-server
+          - postgresql
+          - mongodb
+      tags: db-server
+
+    - name: Install additional tools (optional)
+      apt:
+        pkg:
+          - ansible
+          - terraform
+          - kubernetes
+          - minikube
+          - docker-machine
+      tags: devops-tools
+
+    - name: Create a development user (optional)
+      user:
+        name: devuser
+        home: /home/devuser
+        shell: /bin/bash
+        password: "{{ ansible_user_password }}"
+      tags: user-management
+
+    - name: Clone a specific repository (optional)
+      git:
+        repo: https://github.com/nkaurelien/docker.git
+        dest: /home/devuser/docker
+      tags: git-clone
+
+    - name: Install additional software (optional)
+      shell:
+        cmd: pip3 install <your-python-packages>
+        creates: /usr/local/bin/<your-python-packages>
+      tags: python-packages
+
+#    - name: Run specific tasks based on tags (example)
+#      meta:
+#        check: true
+#        when: ansible_metadata.play.tags is "more-dev-tools"
+#      include: inc-dev-tools.yml

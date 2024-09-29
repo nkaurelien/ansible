@@ -1,0 +1,93 @@
+# https://docs.ansible.com/ansible/latest/scenario_guides/guide_gce.html
+- name: Manages instances group
+  hosts: localhost
+  gather_facts:
+  vars:
+      gcp_project: livraison-express-213321
+      gcp_cred_kind: serviceaccount
+      gcp_cred_file: ./files/livraison-express-213321-7058bc3205c6.json
+      zone: europe-west1-b
+      region: europe-west1
+      APP_ENV: staging
+      discreminator: instance-1
+      app_name: livraison-express
+      named_ports:
+        - name: http
+          port: 80
+        - name: http2
+          port: 8080
+        - name: https
+          port: 443
+        - name: ssh
+          port: 22
+
+  tasks:
+  - name: create a network
+    gcp_compute_network:
+      name: "{{ app_name }}-{{ APP_ENV }}-network"
+      auto_create_subnetworks: 'true'
+      project: "{{ gcp_project }}"
+      auth_kind: "{{ gcp_cred_kind }}"
+      service_account_file: "{{ gcp_cred_file }}"
+      state: present
+    register: network
+  - name: create an instance template
+    gcp_compute_instance_template:
+      state: present
+      name: '{{ app_name }}-{{ zone }}-{{ APP_ENV }}-template-1'
+      properties:
+        # tags:
+        #   items:
+        #     - default-allow-http
+        #     - default-allow-https
+        #     - default-allow-ssh
+        #     - laravel
+        #     - ispconsig
+        disks:
+        - auto_delete: 'true'
+          boot: 'true'
+          initialize_params:
+            source_image: projects/ubuntu-os-cloud/global/images/family/ubuntu-1804-lts
+        machine_type: n1-standard-1
+        network_interfaces:
+            - network: "{{ network }}"
+              access_configs:
+                - name: 'External NAT'
+                  # nat_ip: "{{ address }}"
+                  type: 'ONE_TO_ONE_NAT'
+      project: "{{ gcp_project }}"
+      auth_kind: "{{ gcp_cred_kind }}"
+      service_account_file: "{{ gcp_cred_file }}"
+      scopes:
+        - https://www.googleapis.com/auth/compute
+    register: instancetemplate
+    delegate_to: localhost
+  # - name: create a instance group
+  #   gcp_compute_instance_group:
+  #     name: "{{ app_name }}-{{ zone }}-{{ APP_ENV }}-group-1"
+  #     network: "{{ network }}"
+  #     zone: "{{ zone }}"
+  #     project: "{{ gcp_project }}"
+  #     auth_kind: "{{ gcp_cred_kind }}"
+  #     service_account_file: "{{ gcp_cred_file }}"
+  #     state: present
+  #     named_ports: "{{ named_ports }}"
+  - name: create a instance group manager
+    gcp_compute_instance_group_manager:
+      name: "{{ app_name }}-{{ zone }}-{{ APP_ENV }}-manager-1"
+      base_instance_name: "{{ app_name }}-{{ zone }}-{{ APP_ENV }}-g-instance"
+      instance_template: "{{ instancetemplate }}"
+      target_size: 1
+      zone: "{{ zone }}"
+      project: "{{ gcp_project }}"
+      auth_kind: "{{ gcp_cred_kind }}"
+      service_account_file: "{{ gcp_cred_file }}"
+      state: present
+  # - name: get info on an instance group manager
+  #   gcp_compute_instance_group_manager_info:
+  #     filters:
+  #     - name = "{{ app_name }}-{{ zone }}-{{ APP_ENV }}-manager-1"
+  #     zone: "{{ zone }}"
+  #     project: "{{ gcp_project }}"
+  #     auth_kind: "{{ gcp_cred_kind }}"
+  #     service_account_file: "{{ gcp_cred_file }}"
