@@ -1,0 +1,33 @@
+---
+
+supervisor_version: latest
+supervisor_started: true
+supervisor_enabled: true
+
+supervisor_user: root
+#supervisor_password: 'my_secret_password'
+#supervisor_unix_http_server_password_protect: true
+#supervisor_inet_http_server_password_protect: true
+supervisor_unix_http_server_enable: true
+supervisor_unix_http_server_socket_path: /var/run/supervisor.sock
+supervisor_inet_http_server_enable: false
+supervisor_inet_http_server_port: '*:9001'
+
+supervisor_programs:
+  - name: 'laravel-livraison-express-worker'
+    command: "php {{ current_dir }}/artisan queue:work redis --sleep=3 --tries=3"
+    state: present
+    configuration: |
+      process_name=%(program_name)s_%(process_num)02d
+      autostart=true
+      autorestart=true
+      startretries=1
+      startsecs=1
+      numprocs=3
+      stopwaitsecs=3600
+      redirect_stderr=true
+      stderr_logfile="{{ domain_path }}/worker-err.log"
+      stdout_logfile="{{ domain_path }}/worker-out.log"
+      user=root
+      killasgroup=true
+      stopasgroup=true

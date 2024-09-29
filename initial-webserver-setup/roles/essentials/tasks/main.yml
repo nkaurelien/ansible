@@ -1,0 +1,92 @@
+---
+
+- name: Install essential packages
+  apt:
+    name: "{{ item }}"
+    update_cache: yes
+    state: latest
+  with_items:
+    - unattended-upgrades
+    - build-essential
+    - software-properties-common
+    - gnupg
+    - aptitude
+    - git-flow
+    - ntp
+    - vim
+    - tmux
+    - htop
+    - xclip
+    - nmap
+    - whois
+    - curl
+    - unzip
+    - supervisor
+    - tasksel
+    - ncdu
+    - fish
+    - tree
+  become: true
+  notify:
+    - Start ntp
+
+#- name: Enable unattended upgrades
+#  copy:
+#    src: 10periodic
+#    dest: /etc/apt/apt.conf.d/10periodic
+#    owner: root
+#    group: root
+#    mode: 0644
+#  become: true
+#
+#- name: Add unattended upgrade configuration
+#  copy:
+#    src: 50unattended-upgrades
+#    dest: /etc/apt/apt.conf.d/50unattended-upgrades
+#    owner: root
+#    group: root
+#    mode: 0644
+#  become: true
+#  notify:
+#   - Restart unattended upgrades
+
+#- name: Install python2
+#  raw: sudo apt install -y python-minimal
+#  become: true
+#  ignore_errors: true
+#  remote_user: "{{ test_user | success | ternary(omit, 'root') }}"
+
+#      Ubuntu 17.10 and 18.04 already come with Python 3.6 .
+#- name: Add python3.6 repo
+#  apt_repository:
+#   repo: 'ppa:deadsnakes/ppa'
+#  become: true
+#
+#- name: Install python3
+#  apt:
+#   pkg:
+#     - python3.6
+#     - python3-pip
+#     - python-pip
+#  become: true
+
+#- name: Set python 3.6 as default python exec
+#  file:
+#   src: "/usr/bin/python3.6"
+#   dest: "/usr/bin/python"
+#   state: link
+#  become: true
+
+
+- name: Install dependencies (RedHat).
+  yum: name={{ item }} state=present
+  when: ansible_os_family == 'RedHat'
+  with_items:
+    - cronie
+    - epel-release
+  become: true
+
+- name: Install cron (Debian).
+  apt: name=cron state=present
+  when: ansible_os_family == 'Debian'
+  become: true

@@ -1,0 +1,7 @@
+---
+APP_ENV: local
+APP_DEBUG: true
+APP_LOG_LEVEL: debug
+ADMIN_EMAIL: multicanalservices@gmail.com
+ssh_disable_root_login: false
+ssh_disable_password_auth: false

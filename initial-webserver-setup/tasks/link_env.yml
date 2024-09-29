@@ -1,0 +1,28 @@
+---
+
+- name: Copy .env.{{ APP_ENV }} file
+  template:
+    src: ".env.{{ APP_ENV }}.j2"
+    dest: "{{ persistent_dir }}/.env.{{ APP_ENV }}"
+    #    owner: root
+    #    group: root
+    force: yes
+
+- name: Link .env.{{ APP_ENV }} file to {{ dir | default(new_release_dir) }}/.env
+  file:
+    src: "{{ persistent_dir }}/.env.{{ APP_ENV }}"
+    dest: "{{ dir | default(new_release_dir) }}/.env"
+    state: link
+
+
+#- name: Display address
+#  debug:
+#    var: address
+#    verbosity: 2
+##        msg: "i am good, {{ address.address }}"
+
+#- name: php artisan config:env-validator
+#  shell: chdir={{ current_dir }} php artisan config:env-validator
+#  args:
+#    chdir: "{{ persistent_dir }}"
+#  when: validate_env

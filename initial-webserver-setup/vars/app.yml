@@ -1,0 +1,120 @@
+---
+
+# Domain of your site
+domain: "{{ APP_DOMAIN }}"
+
+# Where site will be located
+domain_path: "/var/www/{{ domain }}"
+
+# Where releases will be located
+releases_dir: "{{ domain_path }}/releases"
+
+# Where link to current release will be located
+current_dir: "{{ domain_path }}/current"
+
+# Where directory with persistent data will be located
+persistent_dir: "{{ domain_path }}/persistent"
+
+# Number of last releases to keep after each deployment
+keep_releases: 3
+
+# Link to your git repository of your site
+repo_user: nkaurelien
+repo_personal_access_token: ZQrNLFnu2Le-hyjG6oZD
+#  This can be the literal string "HEAD", a branch name, a tag name. It can also be a SHA-1 hash, in which case refspec needs to be specified if the given revision is not already available
+repo_version: "{{ GIT_REPO_VERSION }}"
+repo_url: https://{{repo_user}}:{{repo_personal_access_token}}@gitlab.com/multicanalservices/{{ GIT_REPO_NAME }}.git
+
+# Run migrations
+migrate: false
+
+# Command to run migrations
+# Alternatives:  php artisan migrate --force, php artisan migrate:refresh --seed
+migrate_command: php artisan migrate
+
+# Command to rollback migrations
+# Alternatives:  php artisan rollback --force
+migrate_rollback_command: php artisan migrate:rollback
+
+# Validate your .env file
+# melihovv/laravel-env-validator should be installed in your project
+validate_env: true
+
+# Backup database before migration
+# spatie/laravel-backup should be installed in your project
+backup_db: false
+
+# Copy node_modules folder from latest release.
+copy_node_modules: true
+
+# Copy vendor folder from latest release.
+copy_vendor: false
+
+# Extra args passed to certbot for certificate generation. Remove `--test-cert`
+# if you don't want to use staging server to obtain sertificate. For more info
+# about these args see https://certbot.eff.org/docs/using.html#certbot-command-line-options
+certbot_extra_args: --standalone --no-eff-email -n --agree-tos --keep --expand  --preferred-challenges tls-sni --test-cert
+
+# What to do after certificate was refreshed?
+renew_hook: systemctl reload nginx
+
+# Swap file size (see https://github.com/kamaln7/ansible-swapfile)
+swapfile_size: 32GB
+
+# Which npm packages install globally
+# For more info about available variables see https://github.com/geerlingguy/ansible-role-nodejs
+nodejs_version: "14.x"
+nodejs_npm_global_packages:
+  - name: yarn
+  - name: gulp
+  - name: pm2
+
+
+# Which npm packages install globally
+# For more info about available variables see https://github.com/geerlingguy/ansible-role-pip
+pip_install_packages: []
+#  - name: docker
+#    version: "1.2.3"
+#  - name: awscli
+#    version: "1.11.91"
+#  # Or specify bare packages to get the latest release.
+#  - docker
+#  - awscli
+
+# Mysql user name and password
+# More info at https://github.com/geerlingguy/ansible-role-mysql
+mysql_user_name: root
+mysql_user_password: root
+
+# Mysql root user name and password
+mysql_root_username: root
+mysql_root_password: root
+
+# Databases to create in mysql.
+mysql_databases: []
+#   - name: example
+#     collation: utf8mb4_unicode_ci
+#     encoding: utf8mb4
+#     replicate: 1
+
+# Users to create in mysql.
+mysql_users: []
+#   - name: example
+#     host: 127.0.0.1
+#     password: secret
+#     priv: *.*:USAGE
+
+
+#Certbot
+certbot_auto_renew: true
+certbot_auto_renew_user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+certbot_auto_renew_minute: "20"
+certbot_auto_renew_hour: "5"
+certbot_auto_renew_options: "--quiet --no-self-upgrade"
+certbot_create_if_missing: true
+certbot_admin_email: "{{ ADMIN_EMAIL }}"
+certbot_create_standalone_stop_services:
+  - nginx
+certbot_certs:
+  - domains:
+    - "{{ domain }}"

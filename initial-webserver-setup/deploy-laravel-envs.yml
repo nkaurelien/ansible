@@ -1,0 +1,13 @@
+---
+
+- hosts: all
+  remote_user: "{{ ansible_user }}"
+
+  vars_files:
+    - vars/main.yml
+    - vars/app.yml
+
+  tasks:
+    - block:
+        - include: tasks/link_env.yml dir="{{ current_dir }}"
+        - include: tasks/optimize_app.yml dir="{{ current_dir }}"

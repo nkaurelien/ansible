@@ -1,0 +1,54 @@
+---
+
+- name: Remove new release storage dir
+  file:
+    path: "{{ new_release_dir }}/storage"
+    state: absent
+
+- name: Link new release storage directory to persistent/storage
+  file:
+    src: "{{ persistent_dir }}/storage/app"
+    dest: "{{ new_release_dir }}/storage/app"
+    state: link
+
+- name: ¨Provide a valid public path for laravel framework.
+  file:
+    path: "{{ new_release_dir }}/storage/app/public"
+    state: directory
+
+- name: ¨Provide a valid cache path for laravel framework.
+  file:
+    path: "{{ new_release_dir }}/storage/framework/cache"
+    state: directory
+
+- name: ¨Provide a valid logs path for laravel framework.
+  file:
+    path: "{{ new_release_dir }}/storage/logs"
+    state: directory
+
+- name: ¨Provide a valid sessions path for laravel framework.
+  file:
+    path: "{{ new_release_dir }}/storage/framework/sessions"
+    state: directory
+
+- name: ¨Provide a valid compiled views path for laravel framework.
+  file:
+    path: "{{ new_release_dir }}/storage/framework/views"
+    state: directory
+
+#- name: Synchronize two storages dir.
+#  synchronize:
+#    src: "{{ new_release_dir }}/public/storage"
+#    dest: "{{ new_release_dir }}/storage/app/public"
+#    copy_links: true
+#  delegate_to: "{{ inventory_hostname }}"
+
+- name: Remove new release public storage dir
+  file:
+    path: "{{ new_release_dir }}/public/storage"
+    state: absent
+
+- name: Link persistant storage to public
+  shell: php artisan storage:link
+  args:
+    chdir: "{{ new_release_dir }}"

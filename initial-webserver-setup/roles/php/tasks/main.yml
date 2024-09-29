@@ -1,0 +1,56 @@
+---
+
+- name: Add repository for PHP 7.
+  apt_repository: repo='ppa:ondrej/php'
+
+- name: Fix Broken pkgs.
+  become: true
+  shell: apt --fix-broken -y install
+
+
+- name: Install php
+  apt:
+    pkg:
+      - php7.4-cli
+      - php7.4-common
+      - php7.4-fpm
+      - php7.4-curl
+      - php7.4-bz2
+      - php7.4-readline
+      - php7.4-gd
+      - php7.4-exif
+      - php7.4-intl
+      - php7.4-bcmath
+      - php7.4-redis
+      - php7.4-mbstring
+      - php7.4-mysql
+      - php7.4-sqlite3
+      - php7.4-xml
+      - php7.4-zip
+      - php7.4-xmlrpc
+      - php7.4-posix
+    state: latest
+#    update_cache: yes
+#    autoremove: yes
+#    autoclean: yes
+#    force: yes
+  notify:
+    - Start php-fpm
+  become: true
+
+
+- name: Add default resource pool
+  template:
+    src: "{{ item }}"
+    dest: "/etc/php/7.4/fpm/pool.d/{{ item | basename | regex_replace('\\.j2','') }}"
+    owner: root
+    group: root
+  with_fileglob:
+    - "templates/*.j2"
+  become: true
+  notify: Restart php-fpm
+
+- name: Change the default PHP version
+  alternatives:
+    name: php
+    path: /usr/bin/php7.4

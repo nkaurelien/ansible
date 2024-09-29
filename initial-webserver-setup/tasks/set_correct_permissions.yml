@@ -1,0 +1,7 @@
+---
+
+- name: Set correct permissions on folders
+  shell: find "{{ dir }}" -type d ! -perm {{ dir_permissions | default('0771') }} -exec chmod {{ dir_permissions | default('0771') }} {} \;
+
+- name: Set correct permissions on files
+  shell: find "{{ dir }}" -type f ! -perm {{ dir_permissions | default('0640') }} -exec chmod {{ files_permissions | default('0640') }} {} \;

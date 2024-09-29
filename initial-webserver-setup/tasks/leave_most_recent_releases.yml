@@ -1,0 +1,5 @@
+---
+
+- name: Remove all but the {{keep_releases}} most recent
+  shell: ls -dr {{ releases_dir }}/* | tail -n +{{keep_releases + 1}} | xargs -d "\n" rm -rf
+  become: true

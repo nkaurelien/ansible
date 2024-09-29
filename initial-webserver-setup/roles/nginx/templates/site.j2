@@ -1,0 +1,65 @@
+server {
+    listen 80;
+    # listen 80 deferred;
+    server_name {{ domain }};
+    return 301 https://{{ domain }}$request_uri;
+}
+
+server {
+      listen 443 ssl;
+      # listen 443 deferred ssl;
+
+      root {{ domain_path }}/current/public;
+      server_name {{ domain }};
+      index index.php;
+
+      #disable_symlinks off;
+
+      # access_log /var/log/nginx/{{ domain }}.log   gzip  buffer=32k;
+      # error_log  /var/log/nginx/{{ domain }}-error.log error;
+      access_log off;
+      error_log /dev/null;
+
+      charset utf-8;
+
+      # include h5bp/basic.conf;
+
+      ssl_certificate           /etc/letsencrypt/live/{{ domain }}/fullchain.pem;
+      ssl_trusted_certificate   /etc/letsencrypt/live/{{ domain }}/fullchain.pem;
+      ssl_certificate_key       /etc/letsencrypt/live/{{ domain }}/privkey.pem;
+      include h5bp/directive-only/ssl.conf;
+
+      location / {
+          try_files $uri $uri/ /index.php?$query_string /index.php$is_args$args;
+          # try_files $uri $uri/ /index.php$is_args$args;
+      }
+
+      location ~ /\. {
+			  deny all;
+      }
+
+      location ~ \.php$ {
+          fastcgi_split_path_info ^(.+\.php)(/.+)$;
+          fastcgi_pass unix:/run/php/php7.4-fpm.sock;
+          # fastcgi_pass unix:/var/lib/php7.2-fpm/web2.sock;
+          # fastcgi_pass 127.0.0.1:9000;
+          fastcgi_index index.php;
+          fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+          include fastcgi_params;
+          fastcgi_read_timeout 300;
+      }
+
+      location = /favicon.ico {
+          log_not_found off;
+          access_log off;
+          expires max;
+          add_header Cache-Control "public, must-revalidate, proxy-revalidate";
+      }
+
+      location = /robots.txt {
+          allow all;
+          log_not_found off;
+          access_log off;
+      }
+
+}

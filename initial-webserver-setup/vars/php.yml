@@ -1,0 +1,50 @@
+---
+
+# php
+# For more info about available variables see https://github.com/geerlingguy/ansible-role-php
+# The PHP version to be installed. Any currently-supported PHP major version is a valid option (e.g. 7.3, 7.4, or 8.0).
+php_version: '7.4'
+#  (For Debian OSes only) Whether to install recommended packages
+php_versions_install_recommends: false
+php_webserver_daemon: "nginx"
+php_use_managed_ini: true
+php_memory_limit: -1
+php_date_timezone: "Africa/Douala"
+php_max_execution_time: "90"
+php_upload_max_filesize: "256M"
+php_enable_php_fpm: true
+php_packages:
+  - php
+  - php-cli
+  - php-common
+  - php-gd
+  - php-mbstring
+#  - php-pdo
+  - php-xml
+#  - php-apcu
+  - php-curl
+  - php-bz2
+  - php-readline
+#  - php-exif
+  - php-intl
+  - php-bcmath
+  - php-redis
+  - php-mysql
+  - php-mongo
+  - php-sqlite3
+  - php-xml
+#  - php-xmlrpc
+  - php-zip
+#  - php-posix
+#  - php-devel
+#php_fpm_pools:
+#  - pool_name: www
+#    pool_template: www.conf.j2
+#    pool_listen: "127.0.0.1:9000"
+#    pool_listen_allowed_clients: "127.0.0.1"
+#    pool_pm: dynamic
+#    pool_pm_max_children: 5
+#    pool_pm_start_servers: 2
+#    pool_pm_min_spare_servers: 1
+#    pool_pm_max_spare_servers: 3
+#    pool_pm_max_requests: 500

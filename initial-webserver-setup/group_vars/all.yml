@@ -1,0 +1,6 @@
+---
+# google cloud
+gcp_project: livraison-express-213321
+gcp_zone: europe-west1-b
+gcp_region: europe-west1
+

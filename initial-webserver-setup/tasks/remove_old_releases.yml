@@ -1,0 +1,7 @@
+---
+
+- name: Remove old releases
+  become: true
+  shell:
+    cmd: rm -rf `ls -t | tail -n +10`
+    chdir: "{{ releases_dir }}"

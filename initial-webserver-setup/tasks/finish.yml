@@ -1,0 +1,6 @@
+---
+
+- name: php artisan queue:restart
+  shell: php artisan queue:restart
+  args:
+    chdir: "{{ new_release_dir }}"

@@ -1,0 +1,29 @@
+---
+
+- name: Clone repo {{ repo_url }}
+  git:
+    dest: "{{ new_release_dir }}"
+    repo: "{{ repo_url }}"
+    version: "{{ repo_version }}"
+    update: no
+  become: true
+
+- name: Configure sparse checkout
+  git_config:
+    repo: "{{ new_release_dir }}"
+    name: core.sparsecheckout
+    scope: local
+    value: 'true'
+  become: true
+
+- name: Copy sparse-checkout
+  copy:
+    src: sparse-checkout
+    dest: "{{ new_release_dir }}/.git/info/sparse-checkout"
+  become: true
+
+- name: Reset folder to only contain sparse structure
+  shell: "git read-tree -mu {{ repo_version }}"
+  args:
+    chdir: "{{ new_release_dir }}"
+  become: true

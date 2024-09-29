@@ -1,0 +1,47 @@
+---
+
+- hosts: all
+  gather_facts: True
+  remote_user: root
+
+  vars_files:
+    - vars/main.yml
+    - vars/supervisor.yml
+    - vars/app.yml
+
+  roles:
+    #    - name: user
+    #      remote_user: "{{ test_user | success | ternary(omit, 'root') }}"
+    #      tags: user
+
+    - name: ssh
+      remote_user: "{{ ansible_user }}"
+      tags: ssh
+
+    - name: essentials
+      tags: essentials
+
+
+    - name: geerlingguy.git
+      become: true
+
+  pre_tasks:
+    - name: Check if user specified in config is installed
+      local_action: "command ssh -q -o BatchMode=yes -o ConnectTimeout=3 {{ inventory_hostname }} 'echo ok'"
+      register: test_user
+      ignore_errors: true
+      changed_when: false
+
+    - name: Update all packages
+      #      remote_user: "{{ test_user | success | ternary(omit, 'root') }}"
+      apt:
+        update_cache: yes
+        upgrade: safe
+        autoremove: yes
+      become: true
+
+    - name: Update apt cache.
+      apt: update_cache=true cache_valid_time=600
+      when: ansible_os_family == 'Debian'
+      changed_when: false
+      become: true

@@ -1,0 +1,40 @@
+---
+
+- hosts: all
+  remote_user: "{{ ansible_user }}"
+
+  vars_files:
+    - vars/main.yml
+    - vars/supervisor.yml
+    - vars/app.yml
+
+  tasks:
+    - block:
+        #        - include: tasks/gcp_mount_shared_disk.yml
+        - include: tasks/setup_deploy_folder_structure.yml
+        - include: tasks/register_release_variables.yml
+        - include: tasks/create_new_release_dir.yml
+        - include: tasks/clone_repo.yml
+        - include: tasks/mark_release.yml
+        - include: tasks/set_owner_and_group.yml dir_to_chown="{{ new_release_dir }}"
+        - include: tasks/set_correct_permissions.yml dir="{{ new_release_dir }}"
+        - include: tasks/set_owner_and_group.yml dir_to_chown="{{ persistent_dir }}"
+        - include: tasks/set_correct_permissions.yml dir="{{ persistent_dir }}"
+        - include: tasks/set_correct_permissions.yml dir="{{ new_release_dir }}/bootstrap/cache" files_permissions=0771 dir_permissions=0771
+        - include: tasks/set_correct_permissions.yml dir="{{ persistent_dir }}/storage" files_permissions=0771 dir_permissions=0771
+        - include: tasks/check_that_folder_is_writable.yml dir_to_check="{{ new_release_dir }}/bootstrap/cache"
+        - include: tasks/check_that_folder_is_writable.yml dir_to_check="{{ persistent_dir }}/storage"
+        - include: tasks/install_composer_deps.yml
+        #        - include: tasks/link_env.yml
+        - include: tasks/link_storage.yml
+        #      - include: tasks/generate_assets.yml
+        - include: tasks/optimize_app.yml dir="{{ new_release_dir }}"
+        - include: tasks/bless_new_release.yml
+        - include: tasks/optimize_app.yml dir="{{ current_dir }}"
+
+        #      - include: tasks/migrate_db.yml
+        #      - include: tasks/remove_old_releases.yml
+        - include: tasks/leave_most_recent_releases.yml
+      #        - include: tasks/finish.yml
+      rescue:
+        - include: tasks/rollback.yml

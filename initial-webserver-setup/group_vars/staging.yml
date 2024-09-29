@@ -1,0 +1,6 @@
+---
+APP_ENV: staging
+APP_DEBUG: true
+APP_LOG_LEVEL: debug
+ADMIN_EMAIL: mcs@gmail.com
+

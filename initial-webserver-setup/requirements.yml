@@ -1,0 +1,23 @@
+---
+
+- src: kamaln7.swapfile
+- src: ansistrano.deploy
+- src: geerlingguy.repo-remi
+- src: geerlingguy.nodejs
+- src: geerlingguy.composer
+- src: geerlingguy.mysql
+- src: geerlingguy.git
+- src: geerlingguy.pip
+- src: geerlingguy.php-versions
+- src: geerlingguy.php
+- src: geerlingguy.redis
+- src: geerlingguy.nginx
+- src: geerlingguy.memcached
+- src: geerlingguy.rabbitmq
+- src: geerlingguy.repo-epel
+- src: geerlingguy.certbot
+- src: rockandska.erlang
+- src: inoxio.ispconfig3
+- src: geerlingguy.supervisor
+- src: geerlingguy.firewall
+- src: manala.beanstalkd

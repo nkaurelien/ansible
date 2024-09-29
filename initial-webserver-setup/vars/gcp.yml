@@ -1,0 +1,10 @@
+---
+
+gcp_project: livraison-express-213321
+gcp_cred_kind: serviceaccount
+gcp_cred_file: ./files/livraison-express-213321-000000000000.json
+zone: europe-west1-b
+region: europe-west1
+discreminator: instance-1
+app_name: livraison-express
+groupname: "{{ app_name }}-{{ environment }}"

@@ -1,0 +1,11 @@
+---
+#  This can be the literal string "HEAD", a branch name, a tag name. It can also be a SHA-1 hash, in which case refspec needs to be specified if the given revision is not already available
+GIT_REPO_VERSION: "develop"
+GIT_REPO_NAME: livraison-express-backend-console
+APP_DOMAIN: console.staging.livraison-express.net
+APP_URL: https://console.staging.livraison-express.net
+ASSET_URL: https://console.staging.livraison-express.net
+API_URL: https://api.staging.livraison-express.net
+APP_FRONTEND_URL: https://livraison-express-dev.web.app
+
+domain_path: "/var/www/{{ APP_DOMAIN }}"

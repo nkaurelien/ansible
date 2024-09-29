@@ -1,0 +1,207 @@
+image: instrumentisto/rsync-ssh
+stages:
+  - deploy
+  - verify
+  - prepare
+  - setup
+  - manage-dev-test
+  - manage-staging
+  - manage-production
+
+variables:
+  SERVER_USER: nkaurelien
+  SERVER_IP_ADDRESS: 35.X.X.X
+  DEPLOY_DIR: /home/nkaurelien
+  EXEC_DIR: /home/nkaurelien/$CI_PROJECT_NAME
+
+before_script:
+  - ls -las
+  - chmod 400 $SSH_PRIVATE_KEY_FILE
+  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+  #  - eval `ssh-agent -s`
+  - eval $(ssh-agent -s)
+  - ssh-add $SSH_PRIVATE_KEY_FILE
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+
+deploy_with_rsync:
+  stage: deploy
+  script:
+    - echo "Deploy $CI_PROJECT_DIR to $SERVER_USER@$SERVER_IP_ADDRESS:$DEPLOY_DIR"
+    - rsync -ravuz $CI_PROJECT_DIR $SERVER_USER@$SERVER_IP_ADDRESS:$DEPLOY_DIR
+    - |
+      ssh $SERVER_USER@$SERVER_IP_ADDRESS "
+        sudo chmod 700 -R $EXEC_DIR/ansible/initial-webserver-setup;
+        sudo chmod 400 -R $EXEC_DIR/ansible/initial-webserver-setup/.ssh;
+        sudo chmod 400 -R $EXEC_DIR/ansible/initial-webserver-setup/inventory;
+        cd $EXEC_DIR/ansible/initial-webserver-setup;
+        ansible-galaxy install -r requirements.yml;
+      "
+
+  #  when: manual
+  only:
+    - master
+
+#deploy_with_scp:
+#  stage: deploy
+#  script:
+#    - echo "Deploy $CI_PROJECT_DIR to $SERVER_USER@$SERVER_IP_ADDRESS:$DEPLOY_DIR"
+#    - scp -r  $CI_PROJECT_DIR $SERVER_USER@$SERVER_IP_ADDRESS:$DEPLOY_DIR
+#
+#  when: manual
+#  only:
+#    - master
+
+
+ansible_setup_gcp_livrex_instance_2_server:
+  stage: setup
+  script:
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook -i ../hosts_livrex initial-fullstack-setup.yml --limit=production2"
+  when: manual
+#  when: on_success
+
+
+ansible_setup_mamalpro_server:
+  stage: setup
+  script:
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook -i ../hosts_mamalpro initial-fullstack-setup.yml --limit=production"
+  when: manual
+#  when: on_success
+
+ansible_deploy_mamalpro_server:
+  stage: manage-production
+  script:
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/ansistrano; ansible-playbook -i ../hosts_mamalpro deploy_with_ansistrano.yml --extra-vars \"@vars/git_mamalpro.yml\"  --limit=production"
+  #    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook setup.yml --extra-vars \"@vars/extras/web_staging.yml\" --limit=production --tags=certbot"
+  #    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook setup.yml --extra-vars \"@vars/extras/web_staging.yml\" --limit=production --tags=nginx"
+  when: manual
+
+ansible_setup_test_server:
+  stage: setup
+  script:
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook initial-fullstack-setup.yml --limit=test"
+  when: manual
+
+ansible_setup_preprod_web_server:
+  stage: setup
+  script:
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook initial-fullstack-setup.yml --limit=staging"
+  when: manual
+
+
+ansible_setup_prod_web_server:
+  stage: setup
+  script:
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook initial-fullstack-setup.yml --limit=production"
+  when: manual
+
+
+ansible_deploy_preprod_env_api:
+  stage: manage-staging
+  script:
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook deploy-env.yml --extra-vars \"@vars/extras/api_staging.yml\"  --limit=staging"
+  when: manual
+  only:
+    - master
+
+ansible_deploy_preprod_env_console:
+  stage: manage-staging
+  script:
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook deploy-env.yml --extra-vars \"@vars/extras/web_staging.yml\"  --limit=staging"
+  when: manual
+  only:
+    - master
+
+ansible_deploy_preprod_gestock:
+  stage: manage-staging
+  script:
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/ansistrano; ansible-playbook -i hosts deploy_with_ansistrano.yml --extra-vars \"@vars/extras/gestock_staging.yml\"  --limit=staging"
+  when: manual
+  only:
+    - master
+
+ansible_deploy_preprod_api:
+  stage: manage-staging
+  script:
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook deploy.yml --extra-vars \"@vars/extras/api_staging.yml\"  --limit=staging"
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook setup.yml --extra-vars \"@vars/extras/api_staging.yml\" --limit=staging --tags=certbot"
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook setup.yml --extra-vars \"@vars/extras/api_staging.yml\" --limit=staging --tags=nginx"
+  when: manual
+  only:
+    - master
+
+ansible_deploy_preprod_console:
+  stage: manage-staging
+  script:
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook deploy.yml --extra-vars \"@vars/extras/web_staging.yml\"  --limit=staging"
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook setup.yml --extra-vars \"@vars/extras/web_staging.yml\" --limit=staging --tags=certbot"
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook setup.yml --extra-vars \"@vars/extras/web_staging.yml\" --limit=staging --tags=nginx"
+  when: manual
+  only:
+    - master
+
+
+
+ansible_deploy_prod_env_api:
+  stage: manage-production
+  script:
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook deploy-env.yml --extra-vars \"@vars/extras/api_production.yml\"  --limit=production"
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook setup.yml --extra-vars \"@vars/extras/api_production.yml\" --limit=production --tags=certbot"
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook setup.yml --extra-vars \"@vars/extras/api_production.yml\" --limit=production --tags=nginx"
+  when: manual
+  only:
+    - master
+
+ansible_deploy_prod_env_console:
+  stage: manage-production
+  script:
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook deploy-env.yml --extra-vars \"@vars/extras/web_production.yml\"  --limit=production"
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook setup.yml --extra-vars \"@vars/extras/web_production.yml\" --limit=production --tags=certbot"
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook setup.yml --extra-vars \"@vars/extras/web_production.yml\" --limit=production --tags=nginx"
+  when: manual
+  only:
+    - master
+
+
+ansible_deploy_prod_api:
+  stage: manage-production
+  script:
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook deploy.yml --extra-vars \"@vars/extras/api_production.yml\" --limit=production"
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook setup.yml --extra-vars \"@vars/extras/api_production.yml\" --limit=production --tags=certbot"
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook setup.yml --extra-vars \"@vars/extras/api_production.yml\" --limit=production --tags=nginx"
+  when: manual
+  only:
+    - master
+
+ansible_deploy_prod_console:
+  stage: manage-production
+  script:
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook deploy.yml --extra-vars \"@vars/extras/web_production.yml\" --limit=production"
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook setup.yml --extra-vars \"@vars/extras/web_production.yml\" --limit=production --tags=certbot"
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook setup.yml --extra-vars \"@vars/extras/web_production.yml\" --limit=production --tags=nginx"
+
+  when: manual
+  only:
+    - master
+
+ansible_deploy_test_api:
+  stage: manage-dev-test
+  script:
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook deploy.yml --extra-vars \"@vars/extras/api_in_test.yml\" --limit=test"
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook setup.yml --extra-vars \"@vars/extras/api_in_test.yml\" --limit=test --tags=certbot"
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook setup.yml --extra-vars \"@vars/extras/api_in_test.yml\" --limit=test --tags=nginx"
+  when: manual
+  only:
+    - master
+
+ansible_deploy_test_console:
+  stage: manage-dev-test
+  script:
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook deploy.yml --extra-vars \"@vars/extras/web_admin_console_in_test.yml\" --limit=test"
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook setup.yml --extra-vars \"@vars/extras/web_admin_console_in_test.yml\" --limit=test --tags=certbot"
+    - ssh $SERVER_USER@$SERVER_IP_ADDRESS "cd $EXEC_DIR/ansible/initial-webserver-setup; ansible-playbook setup.yml --extra-vars \"@vars/extras/web_admin_console_in_test.yml\" --limit=test --tags=nginx"
+
+  when: manual
+  only:
+    - master

@@ -1,0 +1,40 @@
+---
+
+- name: Ensure ssh is installed
+  apt:
+    pkg: openssh-server
+    state: latest
+    update_cache: true
+    cache_valid_time: 3600
+  become: true
+
+- name: Disable root login
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^PermitRootLogin"
+    line: "PermitRootLogin no"
+    state: present
+  become: true
+  notify: Restart ssh
+  when: ssh_disable_root_login is defined and ssh_disable_root_login
+
+
+- name: Disable password authentication
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^PasswordAuthentication"
+    line: "PasswordAuthentication no"
+    state: present
+  become: true
+  notify: Restart ssh
+  when: ssh_disable_password_auth is defined and ssh_disable_password_auth
+
+
+#- name: Only allow ssh access for the newly created user
+#  lineinfile:
+#    dest: /etc/ssh/sshd_config
+#    insertafter: "^StrictModes"
+#    line: "AllowUsers {{ ansible_user }}"
+#    state: present
+#  become: true
+#  notify: Restart ssh
